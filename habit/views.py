@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from habit.models import Habit, HabitRecords
@@ -26,28 +26,28 @@ class HabitStructure(object):
 # Create your views here.
 @csrf_exempt
 def habit(request):
-    global request_get_from;
-    global history;
-    global habit_id;
-    global habit_name;
-    global habit_isnew;
+    global request_get_from
+    global history
+    global habit_id
+    global habit_name
+    global habit_isnew
 
-    date = "";
-    weekday = "";
-    total_days = 0;
+    date = ""
+    weekday = ""
+    total_days = 0
     habits = []
     habits_string = ""
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
-    total_count = 0;
-    excepts = 0;
-    recorded_dates = "";
+    y_count = 0
+    m_count = 0
+    w_count = 0
+    total_count = 0
+    excepts = 0
+    recorded_dates = ""
 
     weekday_array = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
 
     if request.method == "POST":
-        if request.POST.get('addremove') == None:
+        if request.POST.get('addremove') is None:
             date = request.POST['date']
             weekday = request.POST['weekday']
 
@@ -79,7 +79,7 @@ def habit(request):
                 d.habits.add(h)
                 d.save()
 
-            request_get_from = 1;
+            request_get_from = 1
         else:
             addremove = request.POST['addremove']
             habit_name = request.POST['habit_name']
@@ -87,9 +87,8 @@ def habit(request):
                 max_id = "-1"
                 try:
                     max_id = Habit.objects.order_by("-id")[0].id
-                except Exception, e:
-                    print
-                    e
+                except Exception as e:
+                    print(e)
                 try:
                     hb = Habit.objects.get(name=habit_name)
                     habit_id = hb.id
@@ -107,25 +106,22 @@ def habit(request):
         # habits.append(HabitStructure(1,'早起',1,'2015年11月21日'))
         # habits.append(HabitStructure(2,'早起',1,'2015年11月21日'))
 
+        today = getToday()
+        (date, weekday, total_days, habits, y_count, m_count, w_count, excepts) = getHistoryHabitRecord(today)
+        weekday = weekday_array[datetime.date.today().weekday()]
         if request_get_from == 1:
             request_get_from = 0
-            today = getToday()
-            (date, weekday, total_days, habits, y_count, m_count, w_count, excepts) = getHistoryHabitRecord(today)
-            weekday = weekday_array[datetime.date.today().weekday()]
             total_count = getTotalCount(date)
 
             recorded_dates = getRecordedDates(habits)
-            return render_to_response('habit.html', {'request_get_from': 1, 'date': date, 'weekday': weekday,
-                                                     'total_days': total_days, \
-                                                     'habits': habits, 'y_count': y_count, 'm_count': m_count,
-                                                     'w_count': w_count, 'total_count': total_count,
-                                                     'recorded_dates': recorded_dates})
+            return render(request, 'habit.html', {'request_get_from': 1, 'date': date, 'weekday': weekday,
+                                                  'total_days': total_days,
+                                                  'habits': habits, 'y_count': y_count, 'm_count': m_count,
+                                                  'w_count': w_count, 'total_count': total_count,
+                                                  'recorded_dates': recorded_dates})
         else:
             addremove_flag = request_get_from
             request_get_from = 0
-            today = getToday()
-            (date, weekday, total_days, habits, y_count, m_count, w_count, excepts) = getHistoryHabitRecord(today)
-            weekday = weekday_array[datetime.date.today().weekday()]
             if excepts == 1:
                 (date, total_days, habits, y_count, m_count, w_count, excepts) = getLastDirayRecord()
                 excepts += 1
@@ -142,25 +138,19 @@ def habit(request):
                         w_count = 0
                     elif diff_days >= 7:
                         w_count = 0
-                    else:
-                        pass
             total_count = getTotalCount(today)
 
             if addremove_flag == 2:
-                flag = False
-
                 hb = Habit.objects.get(name=habit_name)
                 date_string = ""
                 for hrs in hb.habitrecords_set.all():
                     v = getValue(getHabitsDict(hrs.habits_string), hb.id)
                     date_string = date_string + formatDate(hrs.date) + ":" + str(v) + " "
-                for hb in habits:
-                    if hb.id == habit_id:
-                        flag = True
-                if False == flag:
+                flag = any(hb.id == habit_id for hb in habits)
+                if not flag:
                     habits.append(HabitStructure(habit_id, habit_name, 0, date_string))
 
-                if False == habit_isnew:
+                if not habit_isnew:
                     excepts = 3
                     habit_isnew = True
 
@@ -172,19 +162,18 @@ def habit(request):
                         if hb.id != habit_id:
                             habits_temp.append(hb)
                     habits = habits_temp
-                except Exception, e:
-                    print
-                    e
+                except Exception as e:
+                    print(e)
                     excepts = 4
 
             recorded_dates = getRecordedDates(habits)
-            return render_to_response('habit.html',
-                                      {'request_get_from': addremove_flag, 'date': today, 'weekday': weekday,
-                                       'total_days': total_days, \
-                                       'habits': habits, 'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
-                                       'total_count': total_count, 'excepts': excepts,
-                                       'recorded_dates': recorded_dates})
-    return render_to_response('habit.html')
+            return render(request, 'habit.html',
+                          {'request_get_from': addremove_flag, 'date': today, 'weekday': weekday,
+                           'total_days': total_days,
+                           'habits': habits, 'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
+                           'total_count': total_count, 'excepts': excepts,
+                           'recorded_dates': recorded_dates})
+    return render(request, 'habit.html')
 
 
 def getHabitsDict(habits_string):
@@ -206,15 +195,15 @@ def getValue(hbdic, id):
 
 
 def getHistoryHabitRecord(dt):
-    date = "";
-    weekday = "";
-    total_days = 0;
+    date = ""
+    weekday = ""
+    total_days = 0
     habits = []
     habits_string = ""
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
-    excepts = 0;
+    y_count = 0
+    m_count = 0
+    w_count = 0
+    excepts = 0
     try:
         dy = HabitRecords.objects.get(date=dt)
         date = dy.date
@@ -235,21 +224,20 @@ def getHistoryHabitRecord(dt):
         y_count = dy.y_count
         m_count = dy.m_count
         w_count = dy.w_count
-    except Exception, e:
-        print
-        e
+    except Exception as e:
+        print(e)
         excepts = 1
-    return (date, weekday, total_days, habits, y_count, m_count, w_count, excepts)
+    return date, weekday, total_days, habits, y_count, m_count, w_count, excepts
 
 
 def getLastDirayRecord():
-    date = "";
-    total_days = 0;
+    date = ""
+    total_days = 0
     habits = []
     habits_string = ""
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
+    y_count = 0
+    m_count = 0
+    w_count = 0
     excepts = 0
     try:
         dy = HabitRecords.objects.order_by("-date")[0]
@@ -271,7 +259,7 @@ def getLastDirayRecord():
         y_count = dy.y_count
         m_count = dy.m_count
         w_count = dy.w_count
-    except Exception, e:
+    except Exception as e:
         excepts = 1
     return (date, total_days, habits, y_count, m_count, w_count, excepts)
 
@@ -285,9 +273,8 @@ def getTotalCount(ld):
         last_day = datetime.date(int(ld[0:4]), int(ld[7:9]), int(ld[12:14]))
         total_count = (last_day - first_day).days
         return total_count + 1
-    except Exception, e:
-        print
-        e
+    except Exception as e:
+        print(e)
         return 0
 
 
@@ -301,15 +288,9 @@ def formatDate(dt):
     dt = dt.encode('UTF-8')
     fdt = dt[0:4]
     fdt += '-'
-    if dt[7:8] == '0':
-        fdt += dt[8:9]
-    else:
-        fdt += dt[7:9]
+    fdt += dt[8:9] if dt[7:8] == '0' else dt[7:9]
     fdt += '-'
-    if dt[12:13] == '0':
-        fdt += dt[13:14]
-    else:
-        fdt += dt[12:14]
+    fdt += dt[13:14] if dt[12:13] == '0' else dt[12:14]
     return fdt
 
 
@@ -326,6 +307,6 @@ def getRecordedDates(habits):
                 dic[hbs[0]] += int(hbs[1])
             else:
                 dic[hbs[0]] = int(hbs[1])
-    for d in dic.keys():
+    for d in dic:
         recorded_dates = recorded_dates + d + ":" + str(dic[d]) + " "
     return recorded_dates

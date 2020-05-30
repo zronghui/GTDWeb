@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from diary.models import Diary
@@ -14,32 +14,32 @@ history = ""
 # Create your views here.
 @csrf_exempt
 def diary(request):
-    global request_get_from;
-    global history;
+    global request_get_from
+    global history
 
-    date = "";
-    weekday = "";
-    total_days = 0;
-    editor0 = "";
-    editor1 = "";
-    editor2 = "";
-    editor3 = "";
-    editor4 = "";
-    editor5 = "";
-    editor6 = "";
-    editor7 = "";
-    editor8 = "";
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
-    total_count = 0;
-    excepts = 0;
-    recorded_dates = "";
+    date = ""
+    weekday = ""
+    total_days = 0
+    editor0 = ""
+    editor1 = ""
+    editor2 = ""
+    editor3 = ""
+    editor4 = ""
+    editor5 = ""
+    editor6 = ""
+    editor7 = ""
+    editor8 = ""
+    y_count = 0
+    m_count = 0
+    w_count = 0
+    total_count = 0
+    excepts = 0
+    recorded_dates = ""
 
     weekday_array = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
 
     if request.method == "POST":
-        if request.POST.get('history') == None:
+        if request.POST.get('history') is None:
             date = request.POST['date']
             weekday = request.POST['weekday']
             total_days = str(int(request.POST['total_days']) + 1)
@@ -59,10 +59,10 @@ def diary(request):
                       editor2=editor2, editor3=editor3, editor4=editor4, editor5=editor5, editor6=editor6, \
                       editor7=editor7, editor8=editor8, y_count=y_count, m_count=m_count, w_count=w_count)
             d.save()
-            request_get_from = 1;
+            request_get_from = 1
         else:
             history = request.POST.get('history')
-            request_get_from = 2;
+            request_get_from = 2
 
     # return HttpResponseRedirect('/diary/history/')
 
@@ -76,28 +76,28 @@ def diary(request):
              y_count, m_count, w_count, excepts) = getHistoryDiaryRecord(today)
             weekday = weekday_array[datetime.date.today().weekday()]
             total_count = getTotalCount(date)
-            return render_to_response('diary.html', {'request_get_from': 1, 'date': date, 'weekday': weekday,
-                                                     'total_days': total_days, \
-                                                     'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
-                                                     'editor0': editor0, 'editor1': editor1, \
-                                                     'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
-                                                     'editor5': editor5, 'editor6': editor6, \
-                                                     'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
-                                                     'recorded_dates': recorded_dates})
+            return render(request, 'diary.html', {'request_get_from': 1, 'date': date, 'weekday': weekday,
+                                                  'total_days': total_days,
+                                                  'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
+                                                  'editor0': editor0, 'editor1': editor1, \
+                                                  'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
+                                                  'editor5': editor5, 'editor6': editor6, \
+                                                  'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
+                                                  'recorded_dates': recorded_dates})
         elif request_get_from == 2:
             request_get_from = 0
 
             (date, weekday, total_days, editor0, editor1, editor2, editor3, editor4, editor5, editor6, editor7, editor8,
              y_count, m_count, w_count, excepts) = getHistoryDiaryRecord(history)
             total_count = getTotalCount(history)
-            return render_to_response('diary.html', {'request_get_from': 2, 'date': history, 'weekday': weekday,
-                                                     'total_days': total_days, \
-                                                     'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
-                                                     'editor0': editor0, 'editor1': editor1, \
-                                                     'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
-                                                     'editor5': editor5, 'editor6': editor6, \
-                                                     'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
-                                                     'excepts': excepts, 'recorded_dates': recorded_dates})
+            return render(request, 'diary.html', {'request_get_from': 2, 'date': history, 'weekday': weekday,
+                                                  'total_days': total_days,
+                                                  'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
+                                                  'editor0': editor0, 'editor1': editor1, \
+                                                  'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
+                                                  'editor5': editor5, 'editor6': editor6, \
+                                                  'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
+                                                  'excepts': excepts, 'recorded_dates': recorded_dates})
         else:
             request_get_from = 0
 
@@ -130,34 +130,34 @@ def diary(request):
                     else:
                         pass
             total_count = getTotalCount(today)
-            return render_to_response('diary.html', {'request_get_from': 0, 'date': today, 'weekday': weekday,
-                                                     'total_days': total_days, \
-                                                     'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
-                                                     'editor0': editor0, 'editor1': editor1, \
-                                                     'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
-                                                     'editor5': editor5, 'editor6': editor6, \
-                                                     'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
-                                                     'excepts': excepts, 'recorded_dates': recorded_dates})
-    return render_to_response('diary.html')
+            return render(request, 'diary.html', {'request_get_from': 0, 'date': today, 'weekday': weekday,
+                                                  'total_days': total_days,
+                                                  'y_count': y_count, 'm_count': m_count, 'w_count': w_count,
+                                                  'editor0': editor0, 'editor1': editor1,
+                                                  'editor2': editor2, 'editor3': editor3, 'editor4': editor4,
+                                                  'editor5': editor5, 'editor6': editor6,
+                                                  'editor7': editor7, 'editor8': editor8, 'total_count': total_count,
+                                                  'excepts': excepts, 'recorded_dates': recorded_dates})
+    return render(request, 'diary.html')
 
 
 def getHistoryDiaryRecord(dt):
-    date = "";
-    weekday = "";
-    total_days = 0;
-    editor0 = "";
-    editor1 = "";
-    editor2 = "";
-    editor3 = "";
-    editor4 = "";
-    editor5 = "";
-    editor6 = "";
-    editor7 = "";
-    editor8 = "";
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
-    excepts = 0;
+    date = ""
+    weekday = ""
+    total_days = 0
+    editor0 = ""
+    editor1 = ""
+    editor2 = ""
+    editor3 = ""
+    editor4 = ""
+    editor5 = ""
+    editor6 = ""
+    editor7 = ""
+    editor8 = ""
+    y_count = 0
+    m_count = 0
+    w_count = 0
+    excepts = 0
     try:
         dy = Diary.objects.get(date=dt)
         date = dy.date
@@ -175,22 +175,23 @@ def getHistoryDiaryRecord(dt):
         y_count = dy.y_count
         m_count = dy.m_count
         w_count = dy.w_count
-    except Exception, e:
+    except Exception as e:
         excepts = 1
     return (
-    date, weekday, total_days, editor0, editor1, editor2, editor3, editor4, editor5, editor6, editor7, editor8, y_count,
-    m_count, w_count, excepts)
+        date, weekday, total_days, editor0, editor1, editor2, editor3, editor4, editor5, editor6, editor7, editor8,
+        y_count,
+        m_count, w_count, excepts)
 
 
 def getLastDirayRecord():
-    date = "";
-    total_days = 0;
-    editor0 = "";
-    editor1 = "";
-    editor2 = "";
-    y_count = 0;
-    m_count = 0;
-    w_count = 0;
+    date = ""
+    total_days = 0
+    editor0 = ""
+    editor1 = ""
+    editor2 = ""
+    y_count = 0
+    m_count = 0
+    w_count = 0
     excepts = 0
     try:
         dy = Diary.objects.order_by("-date")[0]
@@ -202,7 +203,7 @@ def getLastDirayRecord():
         y_count = dy.y_count
         m_count = dy.m_count
         w_count = dy.w_count
-    except Exception, e:
+    except Exception as e:
         excepts = 1
     return (date, total_days, editor0, editor1, editor2, y_count, m_count, w_count, excepts)
 
@@ -216,7 +217,7 @@ def getTotalCount(ld):
         last_day = datetime.date(int(ld[0:4]), int(ld[7:9]), int(ld[12:14]))
         total_count = (last_day - first_day).days
         return total_count + 1
-    except Exception, e:
+    except Exception as e:
         return 0
 
 
@@ -230,15 +231,9 @@ def formatDate(dt):
     dt = dt.encode('UTF-8')
     fdt = dt[0:4]
     fdt += '-'
-    if dt[7:8] == '0':
-        fdt += dt[8:9]
-    else:
-        fdt += dt[7:9]
+    fdt += dt[8:9] if dt[7:8] == '0' else dt[7:9]
     fdt += '-'
-    if dt[12:13] == '0':
-        fdt += dt[13:14]
-    else:
-        fdt += dt[12:14]
+    fdt += dt[13:14] if dt[12:13] == '0' else dt[12:14]
     return fdt
 
 
