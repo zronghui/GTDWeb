@@ -109,8 +109,8 @@ def diary(request):
                 (date, total_days, editor0, editor1, editor2, y_count, m_count, w_count, excepts) = getLastDirayRecord()
                 excepts += 1
                 if date != "":
-                    dt = date.encode('UTF-8')
-                    last_day = datetime.date(int(dt[0:4]), int(dt[7:9]), int(dt[12:14]))
+                    dt = str(date)
+                    last_day = datetime.date(int(dt[:4]), int(dt[5:7]), int(dt[8:10]))
                     diff_days = (datetime.date.today() - last_day).days
                     if diff_days >= 365:
                         eidtor0 = ""
@@ -211,10 +211,10 @@ def getLastDirayRecord():
 def getTotalCount(ld):
     try:
         dy = Diary.objects.order_by("date")[0]
-        dt = dy.date.encode('UTF-8')
-        first_day = datetime.date(int(dt[0:4]), int(dt[7:9]), int(dt[12:14]))  # 2015年09月06日
-        ld = ld.encode('UTF-8')
-        last_day = datetime.date(int(ld[0:4]), int(ld[7:9]), int(ld[12:14]))
+        dt = str(dy.date)
+        first_day = datetime.date(int(dt[:4]), int(dt[5:7]), int(dt[8:10]))  # 2015年09月06日
+        ld = str(ld)
+        last_day = datetime.date(int(ld[:4]), int(ld[5:7]), int(ld[8:10]))
         total_count = (last_day - first_day).days
         return total_count + 1
     except Exception as e:
@@ -224,16 +224,17 @@ def getTotalCount(ld):
 def getToday():
     td = str(datetime.date.today())
     td = td.split('-')
-    return (td[0] + u'年' + td[1] + u'月' + td[2] + u'日')
+    return td[0] + u'年' + td[1] + u'月' + td[2] + u'日'
 
 
 def formatDate(dt):
-    dt = dt.encode('UTF-8')
-    fdt = dt[0:4]
+    dt = str(dt)
+    # dt = dt.encode('UTF-8')
+    fdt = dt[:4]
     fdt += '-'
-    fdt += dt[8:9] if dt[7:8] == '0' else dt[7:9]
+    fdt += dt[5:7].lstrip('0')
     fdt += '-'
-    fdt += dt[13:14] if dt[12:13] == '0' else dt[12:14]
+    fdt += dt[8:10].lstrip('0')
     return fdt
 
 

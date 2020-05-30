@@ -4,6 +4,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+
 from habit.models import Habit, HabitRecords
 
 import datetime
@@ -85,10 +86,7 @@ def habit(request):
             habit_name = request.POST['habit_name']
             if addremove == '1':  # Add
                 max_id = "-1"
-                try:
-                    max_id = Habit.objects.order_by("-id")[0].id
-                except Exception as e:
-                    print(e)
+                max_id = Habit.objects.order_by("-id")[0].id
                 try:
                     hb = Habit.objects.get(name=habit_name)
                     habit_id = hb.id
@@ -126,8 +124,8 @@ def habit(request):
                 (date, total_days, habits, y_count, m_count, w_count, excepts) = getLastDirayRecord()
                 excepts += 1
                 if date != "":
-                    dt = date.encode('UTF-8')
-                    last_day = datetime.date(int(dt[0:4]), int(dt[7:9]), int(dt[12:14]))
+                    dt = str(date)
+                    last_day = datetime.date(int(dt[:4]), int(dt[5:7]), int(dt[8:10]))
                     diff_days = (datetime.date.today() - last_day).days
                     if diff_days >= 365:
                         y_count = 0
@@ -189,7 +187,7 @@ def getHabitsDict(habits_string):
 
 def getValue(hbdic, id):
     value = 0
-    if hbdic.has_key(id):
+    if id in hbdic:
         value = hbdic[id]
     return value
 
@@ -261,16 +259,16 @@ def getLastDirayRecord():
         w_count = dy.w_count
     except Exception as e:
         excepts = 1
-    return (date, total_days, habits, y_count, m_count, w_count, excepts)
+    return date, total_days, habits, y_count, m_count, w_count, excepts
 
 
 def getTotalCount(ld):
     try:
         dy = HabitRecords.objects.order_by("date")[0]
-        dt = dy.date.encode('UTF-8')
-        first_day = datetime.date(int(dt[0:4]), int(dt[7:9]), int(dt[12:14]))
-        ld = ld.encode('UTF-8')
-        last_day = datetime.date(int(ld[0:4]), int(ld[7:9]), int(ld[12:14]))
+        dt = str(dy.date)
+        first_day = datetime.date(int(dt[:4]), int(dt[5:7]), int(dt[8:10]))
+        ld = str(ld)
+        last_day = datetime.date(int(ld[:4]), int(ld[5:7]), int(ld[8:10]))
         total_count = (last_day - first_day).days
         return total_count + 1
     except Exception as e:
@@ -281,16 +279,16 @@ def getTotalCount(ld):
 def getToday():
     td = str(datetime.date.today())
     td = td.split('-')
-    return (td[0] + u'年' + td[1] + u'月' + td[2] + u'日')
+    return td[0] + u'年' + td[1] + u'月' + td[2] + u'日'
 
 
 def formatDate(dt):
-    dt = dt.encode('UTF-8')
-    fdt = dt[0:4]
+    dt = str(dt)
+    fdt = dt[:4]
     fdt += '-'
-    fdt += dt[8:9] if dt[7:8] == '0' else dt[7:9]
+    fdt += dt[5:7].lstrip('0')
     fdt += '-'
-    fdt += dt[13:14] if dt[12:13] == '0' else dt[12:14]
+    fdt += dt[8:10].lstrip('0')
     return fdt
 
 
@@ -303,7 +301,7 @@ def getRecordedDates(habits):
             hbs = hbs.split(":")
             if len(hbs) < 2:
                 continue
-            if dic.has_key(hbs[0]):
+            if hbs[0] in dic:
                 dic[hbs[0]] += int(hbs[1])
             else:
                 dic[hbs[0]] = int(hbs[1])

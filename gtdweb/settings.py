@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'diary',
     'habit',
+    'django_extensions',
 )
 
 MIDDLEWARE = (
