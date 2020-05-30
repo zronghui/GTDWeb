@@ -6,10 +6,9 @@ from diary.models import Diary
 
 
 class DiaryAdmin(admin.ModelAdmin):
-	list_display=('date','weekday','total_days',)
-	list_filter=('date',)
-	ordering=('-date',)
+    list_display = ('date', 'weekday', 'total_days',)
+    list_filter = ('date',)
+    ordering = ('-date',)
 
 
-
-admin.site.register(Diary,DiaryAdmin)
+admin.site.register(Diary, DiaryAdmin)

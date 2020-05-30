@@ -21,6 +21,6 @@ import habit.views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^diary/$',diary.views.diary,name='diary'),
-    url(r'^habit/$',habit.views.habit,name='habit'),
+    url(r'^diary/$', diary.views.diary, name='diary'),
+    url(r'^habit/$', habit.views.habit, name='habit'),
 ]
