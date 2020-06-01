@@ -162,6 +162,7 @@ def habit(request):
                     habits = habits_temp
                 except Exception as e:
                     print(e)
+                    print(e)
                     excepts = 4
 
             recorded_dates = getRecordedDates(habits)
@@ -224,6 +225,7 @@ def getHistoryHabitRecord(dt):
         w_count = dy.w_count
     except Exception as e:
         print(e)
+        print(e)
         excepts = 1
     return date, weekday, total_days, habits, y_count, m_count, w_count, excepts
 
@@ -258,6 +260,7 @@ def getLastDirayRecord():
         m_count = dy.m_count
         w_count = dy.w_count
     except Exception as e:
+        print(e)
         excepts = 1
     return date, total_days, habits, y_count, m_count, w_count, excepts
 
@@ -272,6 +275,7 @@ def getTotalCount(ld):
         total_count = (last_day - first_day).days
         return total_count + 1
     except Exception as e:
+        print(e)
         print(e)
         return 0
 
